@@ -1,0 +1,12 @@
+Library
+Logs
+obj
+Bin
+UnityEditor.UI.csproj
+UnityEditor.UI.EditorTests.csproj
+UnityEngine.UI.csproj
+UnityEngine.UI.Tests.csproj
+.vsconfig
+Assembly-CSharp.csproj
+Test Project 1.sln
+.vs

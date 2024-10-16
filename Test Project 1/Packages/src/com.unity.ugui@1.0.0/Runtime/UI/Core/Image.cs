@@ -73,6 +73,11 @@ namespace UnityEngine.UI
             /// This can be used for example to display circular or linear status information such as timers, health bars, and loading bars.
             /// </remarks>
             Filled,
+
+            /// <summary>
+            /// 百叶窗效果
+            /// </summary>
+            WindowShades,
         }
 
         /// <summary>
@@ -119,6 +124,12 @@ namespace UnityEngine.UI
             /// or this method the Image.fillAmount represents an angle between 0 and 360 degrees. The Arc defined by the center of the Image, the Image.fillOrigin and the angle will be cut from the Image.
             /// </remarks>
             Radial360,
+        }
+
+        public enum WindowShadeFillMethod
+        {
+            Horizontal,
+            Vertical,
         }
 
         /// <summary>
@@ -469,6 +480,18 @@ namespace UnityEngine.UI
         [Range(0, 1)]
         [SerializeField]
         private float m_FillAmount = 1.0f;
+
+        /// 百叶窗网格数
+        [SerializeField]
+        private uint m_WindowShadeCount = 1;
+
+        public uint windowShadeCount { get { return m_WindowShadeCount; } set { if (SetPropertyUtility.SetStruct(ref m_WindowShadeCount, value)) SetVerticesDirty(); } }
+
+        /// 百叶窗方向
+        [SerializeField]
+        private WindowShadeFillMethod m_WindowShadeFillMethod = WindowShadeFillMethod.Horizontal;
+
+        public WindowShadeFillMethod windowShadeFillMethod { get => m_WindowShadeFillMethod; set { if (SetPropertyUtility.SetStruct(ref m_WindowShadeFillMethod, value)) SetVerticesDirty(); } }
 
         /// <summary>
         /// Amount of the Image shown when the Image.type is set to Image.Type.Filled.
@@ -911,6 +934,9 @@ namespace UnityEngine.UI
                     break;
                 case Type.Filled:
                     GenerateFilledSprite(toFill, m_PreserveAspect);
+                    break;
+                case Type.WindowShades:
+                    GenerateWindowShadesSprite(toFill, m_PreserveAspect);
                     break;
             }
         }
@@ -1622,6 +1648,76 @@ namespace UnityEngine.UI
                 else
                 {
                     AddQuad(toFill, s_Xy, color, s_Uv);
+                }
+            }
+        }
+
+        /// <summary>
+        /// 生成百叶窗Sprite
+        /// </summary>
+        void GenerateWindowShadesSprite(VertexHelper toFill, bool preserveAspect)
+        {
+            if (fillAmount == 1)
+            {
+                GenerateSimpleSprite(toFill, preserveAspect);
+                return;
+            }
+
+            var v = GetDrawingDimensions(preserveAspect);
+            var uv = (activeSprite != null) ? Sprites.DataUtility.GetOuterUV(activeSprite) : Vector4.zero;
+            toFill.Clear();
+
+            var vertexes = new Vector3[4];
+            var uvs = new Vector3[4];
+            uint windowCnt = windowShadeCount > 0 ? windowShadeCount : 1;
+            if (windowShadeFillMethod == WindowShadeFillMethod.Horizontal)
+            {
+                float width = v.z - v.x;
+                float widthEachWindow = width / windowCnt;
+                for (int i = 0; i < windowCnt; i++)
+                {
+                    // 设置顶点
+                    float x1 = v.x + i * widthEachWindow;
+                    float x2 = x1 + widthEachWindow * fillAmount;
+                    vertexes[0] = new(x1, v.y, 0);
+                    vertexes[1] = new(x1, v.w, 0);
+                    vertexes[2] = new(x2, v.w, 0);
+                    vertexes[3] = new(x2, v.y, 0);
+
+                    // 设置顶点的UV坐标
+                    float uv_x1 = uv.x + i * (1.0f / windowCnt);
+                    float uv_x2 = uv_x1 + (1.0f / windowCnt) * fillAmount;
+                    uvs[0] = new(uv_x1, uv.y, 0);
+                    uvs[1] = new(uv_x1, uv.w, 0);
+                    uvs[2] = new(uv_x2, uv.w, 0);
+                    uvs[3] = new(uv_x2, uv.y, 0);
+
+                    AddQuad(toFill, vertexes, color, uvs);
+                }
+            }
+            else if (windowShadeFillMethod == WindowShadeFillMethod.Vertical)
+            {
+                float height = v.w - v.y;
+                float heightEachWindow = height / windowCnt;
+                for (int i = 0; i < windowCnt; i++)
+                {
+                    // 设置顶点
+                    float y1 = v.y + i * heightEachWindow;
+                    float y2 = y1 + heightEachWindow * fillAmount;
+                    vertexes[0] = new(v.x, y1, 0);
+                    vertexes[1] = new(v.x, y2, 0);
+                    vertexes[2] = new(v.z, y2, 0);
+                    vertexes[3] = new(v.z, y1, 0);
+
+                    // 设置顶点的UV坐标
+                    float uv_y1 = uv.y + i * (1.0f / windowCnt);
+                    float uv_y2 = uv_y1 + (1.0f / windowCnt) * fillAmount;
+                    uvs[0] = new(uv.x, uv_y1, 0);
+                    uvs[1] = new(uv.x, uv_y2, 0);
+                    uvs[2] = new(uv.z, uv_y2, 0);
+                    uvs[3] = new(uv.z, uv_y1, 0);
+
+                    AddQuad(toFill, vertexes, color, uvs);
                 }
             }
         }

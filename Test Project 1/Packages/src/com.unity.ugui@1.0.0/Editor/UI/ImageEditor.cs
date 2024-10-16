@@ -21,6 +21,8 @@ namespace UnityEditor.UI
         SerializedProperty m_FillMethod;
         SerializedProperty m_FillOrigin;
         SerializedProperty m_FillAmount;
+        SerializedProperty m_WindowCount;
+        SerializedProperty m_WindowShadeFillMethod;
         SerializedProperty m_FillClockwise;
         SerializedProperty m_Type;
         SerializedProperty m_FillCenter;
@@ -35,6 +37,7 @@ namespace UnityEditor.UI
         AnimBool m_ShowSliced;
         AnimBool m_ShowTiled;
         AnimBool m_ShowFilled;
+        AnimBool m_ShowWindowShades;
         AnimBool m_ShowType;
         bool m_bIsDriven;
 
@@ -93,6 +96,8 @@ namespace UnityEditor.UI
             m_FillOrigin            = serializedObject.FindProperty("m_FillOrigin");
             m_FillClockwise         = serializedObject.FindProperty("m_FillClockwise");
             m_FillAmount            = serializedObject.FindProperty("m_FillAmount");
+            m_WindowCount           = serializedObject.FindProperty("m_WindowShadeCount");
+            m_WindowShadeFillMethod = serializedObject.FindProperty("m_WindowShadeFillMethod");
             m_PreserveAspect        = serializedObject.FindProperty("m_PreserveAspect");
             m_UseSpriteMesh         = serializedObject.FindProperty("m_UseSpriteMesh");
             m_PixelsPerUnitMultiplier = serializedObject.FindProperty("m_PixelsPerUnitMultiplier");
@@ -106,10 +111,12 @@ namespace UnityEditor.UI
             m_ShowSliced = new AnimBool(!m_Type.hasMultipleDifferentValues && typeEnum == Image.Type.Sliced);
             m_ShowTiled = new AnimBool(!m_Type.hasMultipleDifferentValues && typeEnum == Image.Type.Tiled);
             m_ShowFilled = new AnimBool(!m_Type.hasMultipleDifferentValues && typeEnum == Image.Type.Filled);
+            m_ShowWindowShades = new AnimBool(!m_Type.hasMultipleDifferentValues && typeEnum == Image.Type.WindowShades);
             m_ShowSlicedOrTiled.valueChanged.AddListener(Repaint);
             m_ShowSliced.valueChanged.AddListener(Repaint);
             m_ShowTiled.valueChanged.AddListener(Repaint);
             m_ShowFilled.valueChanged.AddListener(Repaint);
+            m_ShowWindowShades.valueChanged.AddListener(Repaint);
 
             SetShowNativeSize(true);
 
@@ -125,6 +132,7 @@ namespace UnityEditor.UI
             m_ShowSliced.valueChanged.RemoveListener(Repaint);
             m_ShowTiled.valueChanged.RemoveListener(Repaint);
             m_ShowFilled.valueChanged.RemoveListener(Repaint);
+            m_ShowWindowShades.valueChanged.RemoveListener(Repaint);
         }
 
         public override void OnInspectorGUI()
@@ -216,6 +224,7 @@ namespace UnityEditor.UI
                 m_ShowSliced.target = (showSlicedOrTiled && !m_Type.hasMultipleDifferentValues && typeEnum == Image.Type.Sliced);
                 m_ShowTiled.target = (showSlicedOrTiled && !m_Type.hasMultipleDifferentValues && typeEnum == Image.Type.Tiled);
                 m_ShowFilled.target = (!m_Type.hasMultipleDifferentValues && typeEnum == Image.Type.Filled);
+                m_ShowWindowShades.target = (!m_Type.hasMultipleDifferentValues && typeEnum == Image.Type.WindowShades);
 
                 Image image = target as Image;
                 if (EditorGUILayout.BeginFadeGroup(m_ShowSlicedOrTiled.faded))
@@ -279,6 +288,15 @@ namespace UnityEditor.UI
                     {
                         EditorGUILayout.PropertyField(m_FillClockwise, m_ClockwiseContent);
                     }
+                }
+                EditorGUILayout.EndFadeGroup();
+
+                if (EditorGUILayout.BeginFadeGroup(m_ShowWindowShades.faded))
+                {
+                    EditorGUI.BeginChangeCheck();
+                    EditorGUILayout.PropertyField(m_WindowShadeFillMethod);
+                    EditorGUILayout.PropertyField(m_WindowCount);
+                    EditorGUILayout.PropertyField(m_FillAmount);
                 }
                 EditorGUILayout.EndFadeGroup();
             }
