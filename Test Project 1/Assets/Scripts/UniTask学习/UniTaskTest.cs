@@ -72,7 +72,12 @@ public class UniTaskTest : MonoBehaviour
         await asyncReq.WithCancellation(cancellationToken: cancelToken, cancelImmediately: true);
 	}
 
-    async UniTask StartTestUniTaskCallDelayCoroutine(CancellationToken cancelToken)
+	/// <summary>
+	/// 用UniTask执行协程
+	/// </summary>
+	/// <param name="cancelToken">根据UniTask官方建议，所有UniTask最好都传入cancelToken。For propagate Cancellation, all async method recommend to accept CancellationToken cancellationToken at last argument, and pass CancellationToken from root to end.</param>
+	/// <returns></returns>
+	async UniTask StartTestUniTaskCallDelayCoroutine(CancellationToken cancelToken)
     {
 		// 将协程转换为UniTask的async程序。
         //      但是当你调用 ToUniTask() 将 IEnumerator 转换为 UniTask 时，实际上你并不是直接获得一个简单的值类型结构体，而是会创建一个用于控制协程状态和调度的状态机。
