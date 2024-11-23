@@ -12,10 +12,10 @@ public class UniTaskTest : MonoBehaviour
     void Start()
     {
         //StartCoroutine(LoopPrint());
-        //LoopPrint1(this.GetCancellationTokenOnDestroy()).Forget();
-        //HttpAsyncTest(this.GetCancellationTokenOnDestroy()).Forget();
-        //StartRequestForMicrophoneAuth(this.GetCancellationTokenOnDestroy()).Forget();
-        StartTestUniTaskCallDelayCoroutine(this.GetCancellationTokenOnDestroy()).Forget();
+        //LoopPrint1(destroyCancellationToken).Forget();
+        //HttpAsyncTest(destroyCancellationToken).Forget();
+        //StartRequestForMicrophoneAuth(destroyCancellationToken).Forget();
+        StartTestUniTaskCallDelayCoroutine(destroyCancellationToken).Forget();
 	}
 
     // Update is called once per frame
