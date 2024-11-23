@@ -10,15 +10,17 @@ public class UniTaskTest : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        StartCoroutine(LoopPrint());
-        LoopPrint1().Forget();
-        HttpAsyncTest().Forget();
+        //StartCoroutine(LoopPrint());
+        //LoopPrint1().Forget();
+        //HttpAsyncTest().Forget();
+        //StartRequestForMicrophoneAuth().Forget();
+        StartTestUniTaskCallDelayCoroutine().Forget();
 	}
 
     // Update is called once per frame
     void Update()
     {
-		print($"{GetInstanceID()} Update: {Time.frameCount}");
+		//print($"{GetInstanceID()} Update: {Time.frameCount}");
 	}
     
     IEnumerator LoopPrint()
@@ -31,6 +33,13 @@ public class UniTaskTest : MonoBehaviour
 			print($"End IEnumerator LoopPrint: {Time.frameCount}");
 		}
     }
+
+    IEnumerator TestDelayCoroutine()
+    {
+        print($"TestDelayCoroutine: {Time.time}");
+        yield return new WaitForSeconds(5);
+		print($"TestDelayCoroutine: {Time.time}");
+	}
 
     async UniTask LoopPrint1()
     {
@@ -52,5 +61,21 @@ public class UniTaskTest : MonoBehaviour
 		print(web_res.downloadHandler.text);
 
         print($"HttpAsyncTest 2: {Time.frameCount}");
+	}
+
+    async UniTask StartRequestForMicrophoneAuth()
+    {
+        print(123);
+        var asyncReq = Application.RequestUserAuthorization(UserAuthorization.Microphone);
+        asyncReq.completed += (asyncOp) => print(asyncOp);
+        await asyncReq;
+	}
+
+    async UniTask StartTestUniTaskCallDelayCoroutine()
+    {
+		// 将协程转换为UniTask的async程序。
+        //      但是当你调用 ToUniTask() 将 IEnumerator 转换为 UniTask 时，实际上你并不是直接获得一个简单的值类型结构体，而是会创建一个用于控制协程状态和调度的状态机。
+        //      这个状态机的创建会涉及到一定的内存分配和计算，虽然 UniTask 结构体本身不涉及堆分配，但这些操作依然会带来一些计算和内存开销
+		await TestDelayCoroutine().ToUniTask();
 	}
 }
