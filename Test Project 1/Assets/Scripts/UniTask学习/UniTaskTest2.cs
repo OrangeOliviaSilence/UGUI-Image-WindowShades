@@ -54,6 +54,7 @@ public class UniTaskTest2 : MonoBehaviour
 	void Start()
 	{
 		_cancelTokenSrcLoopPrint = new CancellationTokenSource();
+		//LoopPrintUniTask(_cancelTokenSrcLoopPrint.Token).Forget();
 		LoopPrintUniTask(_cancelTokenSrcLoopPrint.Token).Forget();
 	}
 
@@ -97,7 +98,8 @@ public class UniTaskTest2 : MonoBehaviour
 		print($"Start UniTask LoopPrintUniTask: {Time.frameCount}");
 		while (!cancelToken.IsCancellationRequested)
 		{
-			await UniTask.NextFrame(cancellationToken:cancelToken, cancelImmediately:true);
+			print(123123);
+			await UniTask.NextFrame(cancellationToken:cancelToken);
 		}
 	}
 
